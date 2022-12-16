@@ -7,7 +7,7 @@ from pathlib import Path
 from time import sleep, time
 from logging import getLogger, basicConfig, INFO
 
-from chococheat.world_info import (is_chicobo_away, CHEATSAVE, CHOCOSAVE, OFFSET_ITEMS_A, OFFSET_ITEMS_B,
+from chococheat.world_info import (is_chicobo_away, CHEATSAVE, CHOCOSAVE, OFFSET_ITEMS_A, OFFSET_ITEMS_B, LEVEL_OFFSET,
                                    OFFSET_ITEMS_C, OFFSET_ITEMS_D, RANK_OFFSET, CURRENT_HP_OFFSET, MAX_HP_OFFSET)
 
 
@@ -83,10 +83,12 @@ class CLITool:
         else:
             logger.info('Chicobo is currently home. That means we can\'t meaningfully edit the save file.')
 
-        logger.info(f'Your current rank is {filedata[RANK_OFFSET].to_bytes(1, "big").hex()}. (Smaller is better)')
+        logger.info(f'Chicobo\'s (hidden) rank is {filedata[RANK_OFFSET].to_bytes(1, "big").hex()}.')
+        level = int(filedata[LEVEL_OFFSET].to_bytes(1, "big").hex()) or 100
+        logger.info(f'Chicobo\'s level is {level}.')
         min_hp = filedata[CURRENT_HP_OFFSET].to_bytes(1, 'big').hex()
         max_hp = filedata[MAX_HP_OFFSET].to_bytes(1, 'big').hex()
-        logger.info(f'Your Current HP is {min_hp}/{max_hp}')
+        logger.info(f'Chicobo\'s HP is {min_hp}/{max_hp}')
 
         if filedata[OFFSET_ITEMS_A].to_bytes(1, 'big').hex():
             # Consider it valid item data
@@ -97,7 +99,7 @@ class CLITool:
                 'D': filedata[OFFSET_ITEMS_D].to_bytes(1, 'big').hex(),
             }.items():
                 if value:
-                    logger.info(f'The save has {value} {key}-class items.')
+                    logger.info(f'Cactuar has found {int(value)} {key}-class items.')
 
     @cli_endpoint(
         item_a='Number of items of category A to give, range 0-99 inclusive.',
