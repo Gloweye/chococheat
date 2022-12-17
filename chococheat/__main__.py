@@ -222,8 +222,8 @@ class CLITool:
                 world.rank = 0
                 world.level = 0  # This is actually level 100
                 world.mog_status = MogStatus.ALL
-            world.item_a = world.item_b = world.item_c = world.item_d = 99
-            world.mog_status = world.mog_status | MogStatus.MOG_AVAILABLE
+            world.item_a = world.item_b = world.item_c = world.item_d = 64
+            world.mog_status = world.mog_status | MogStatus.FOUND | MogStatus.MOG_AVAILABLE
             world.write_to_file(Files.CHEATSAVE)
             return
 

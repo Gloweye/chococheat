@@ -28,4 +28,3 @@ This doesn't seem very useful yet, but perhaps it could be of use elsewhere. Hav
 all doesn't trigger this bug, and still properly returns the Mog's Amulet.
 
 The same setup does not trigger bugs in the other item tables. 
-
