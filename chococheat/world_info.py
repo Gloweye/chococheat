@@ -1,12 +1,18 @@
-"""Info about Chocoboworld, constants and functions"""
+"""
+Info about Chocoboworld, constants and functions.
+Much detailed info originates from https://gamefaqs.gamespot.com/boards/197343-final-fantasy-viii/68239394 ,
+Though the actual byte locations are shifted in the PC version.
+"""
+from enum import IntFlag
 from logging import getLogger
 from pathlib import Path
-from typing import Union
+from typing import Union, Type
 
 from chococheat.config import config
 
 # Actually only know this about Windows for certain.
-GAME_SAVES_DIR = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam' / f'user_{config:global.user_id!d}'
+GAME_SAVES_DIR = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam' \
+                 / f'user_{config:global.user_id!d}'
 CHOCOSAVE = GAME_SAVES_DIR / 'chocorpg.ff8'
 BACKUPSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.bak'
 CHEATSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.cheat'
@@ -29,6 +35,20 @@ DEMO_FILE = b'\xb3\x00\x00\x00\xff\xff\x08\x83\x02\x16\x16\x99\x99\xf7\x00\x05' 
             b'0\x02\x00\x00\x03\xc5\x07'
 
 
+class MogStatus(IntFlag):
+    UNUSED = 1  # Always set
+    OUT = 2
+    FOUND = 4
+    MOG_AVAILABLE = 8
+    MOG_ACTIVE = 16
+    DEMON_KING_DEAD = 32  # Only use when level == 100
+    CURRENT_EVENT_HAPPENED = 64
+    EVENT_WAIT_OFF = 128
+
+    INITIAL = UNUSED + OUT
+    ALL = 255 - 64
+
+
 class Variable:
 
     def __init__(self, offset: int, end: int = None):
@@ -47,6 +67,22 @@ class Variable:
         if not isinstance(instance.buffer, bytearray):
             raise RuntimeError('Cannot assign to instance when it\'s not writable.')
         instance.buffer[self.offset:self.offset + self.size] = bytes.fromhex(f'{value:0<{self.size}}')[::-1]
+
+
+class FlagsVariable:
+    def __init__(self, offset: int, flags: Type[IntFlag]):
+        self.offset = offset
+        self.flags = flags
+
+    def __get__(self, instance, owner) -> IntFlag:
+        if isinstance(instance, type):
+            raise TypeError('Variables are only valid on instances, not types.')
+        return self.flags(instance.buffer[self.offset])
+
+    def __set__(self, instance, value: IntFlag):
+        if not isinstance(instance.buffer, bytearray):
+            raise RuntimeError('Cannot assign to instance when it\'s not writable.')
+        instance.buffer[self.offset] = value
 
 
 class DictVariable:
@@ -97,6 +133,8 @@ class World:
     item_c = Variable(0x1e)
     item_d = Variable(0x1f)
     items = DictVariable(A=item_a, B=item_b, C=item_c, D=item_d)
+    mog_status = FlagsVariable(0x07, MogStatus)
+    # Haven't yet managed to find the byte location of the powerup counter.
 
     def __init__(self, arg: Union[Path, bytes], for_writing=False):
         if isinstance(arg, Path):

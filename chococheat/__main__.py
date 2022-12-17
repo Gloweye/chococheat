@@ -7,8 +7,8 @@ from pathlib import Path
 from time import sleep
 from logging import getLogger, basicConfig, INFO
 
-from chococheat.world_info import World, CHEATSAVE, CHOCOSAVE, BACKUPSAVE
-
+from chococheat.config import config
+from chococheat.world_info import World, CHEATSAVE, CHOCOSAVE, BACKUPSAVE, MogStatus
 
 logger = getLogger(__name__)
 
@@ -84,20 +84,51 @@ class CLITool:
 
         logger.info(f'Chicobo\'s (hidden) rank is {int(world.rank)}.')
         logger.info(f'Chicobo\'s level is {int(world.level) or 100}.')
+        logger.info(f'Chicobo\'s weapon is {world.weapon}.')
         logger.info(f'Chicobo\'s HP is {int(world.current_hp)}/{int(world.maximum_hp)}')
         if world.items_visible:
             for item_class, number in world.items.items():
                 logger.info(f'Cactuar has found {int(number)} {item_class}-class items.')
+        else:
+            logger.info('Cannot read the items at this time.')
 
     @cli_endpoint(
-        auto='Automagically initialize the cheat tool as recommended.'
+        auto='Automagically initialize the cheat tool as recommended.',
+        ff8_only='Ignored without --auto. When initializing, optimizes only for purposes of playing FF8.'
     )
-    def init(self, auto: bool = False):
+    def init(self, auto: bool, ff8_only: bool):
         """
-        Setup the cheat tool. Backups, Chicobo power boosts, items, etc.
-        :param auto:
-        :return:
+        Setup the cheat tool. Backups, Chicobo power boosts, items, etc. You can either
         """
+        if not CHOCOSAVE.exists():
+            logger.info('There is currently no Chocobo World save file. This means there\'s also no way to import '
+                        'cheated stuff. To get started, go into FF8, catch your first Chocobo (or pay the Chocoboy '
+                        'to do it for you), and then go into the "Save" menu to send your Chicobo on it\'s way. '
+                        'To edit data, it needs to be on "World", not "Home".')
+            return
+
+        world = World(CHEATSAVE if CHEATSAVE.exists() else CHOCOSAVE)
+        if not world.away:
+            logger.info('Your Chicobo is currently in it\'s "Home" state. To edit the file, you need to send it off'
+                        'into the world first.')
+            return
+
+        if auto:
+            if not BACKUPSAVE.exists():
+                world.write_to_file(BACKUPSAVE)
+            if not world.items_visible:
+                world = World.from_dummy()
+            if not ff8_only:
+                world.weapon = 9999
+                world.rank = 0
+                world.level = 0  # This is actually level 100
+                world.mog_status = MogStatus.ALL
+            world.item_a = world.item_b = world.item_c = world.item_d = 99
+            world.mog_status = world.mog_status | MogStatus.MOG_AVAILABLE
+            world.write_to_file(CHEATSAVE)
+            return
+
+        logger.info('Wizard has not been implemented yet.')
 
     @cli_endpoint(
         item_a='Number of items of category A to give, range 0-99 inclusive.',
@@ -149,19 +180,21 @@ if __name__ == '__main__':
 
                 kwargs = {}
                 prefix = ''
-                if param.default is not param.empty:
-                    kwargs['default'] = param.default
-                    kwargs['required'] = False
+                if param.annotation is not bool:
+
+                    if param.default is not param.empty:
+                        kwargs['default'] = param.default
+                        kwargs['required'] = False
+
                     if param.kind is param.KEYWORD_ONLY:
+                        kwargs['required'] = True
                         prefix = '--'
-                elif param.annotation is not bool and param.kind is param.KEYWORD_ONLY:
-                    kwargs['required'] = True
-                    prefix = '--'
 
                 if issubclass(param.annotation, str) and issubclass(param.annotation, Enum):
                     kwargs['choices'] = tuple(mem for mem in param.annotation.__members__)
                 if param.annotation is bool:
                     kwargs['action'] = 'store_false' if param.default is True else 'store_true'
+                    prefix = '--'
                 else:
                     kwargs['action'] = 'store'
                     kwargs['type'] = param.annotation
