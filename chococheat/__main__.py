@@ -154,6 +154,7 @@ class CLITool:
         logger.info(f'Chicobo\'s level is {int(world.level) or 100}.')
         logger.info(f'Chicobo\'s weapon is {world.weapon}.')
         logger.info(f'Chicobo\'s HP is {int(world.current_hp)}/{int(world.maximum_hp)}')
+        logger.info(f'Mog Status is {world.mog_status.value} ({world.mog_status})')
         if world.items_visible:
             for item_class, number in world.items.items():
                 logger.info(f'Chicobo has {int(number)} {item_class}-class items.')
@@ -168,7 +169,7 @@ class CLITool:
         """
         Setup the cheat tool. Backups, Chicobo power boosts, items, etc.
         """
-        if config.get('global', 'user_id', None) is None:
+        if config.get('global', 'user_id', fallback=None) is None:
             dir = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam'
             candidates = []
             for path in dir.iterdir():
@@ -205,7 +206,7 @@ class CLITool:
                         'To edit data, it needs to be on "World", not "Home".')
             return
 
-        world = World(Files.CHEATSAVE if Files.CHEATSAVE.exists() else Files.CHOCOSAVE)
+        world = World(Files.CHEATSAVE if Files.CHEATSAVE.exists() else Files.CHOCOSAVE, for_writing=True)
         if not world.away:
             logger.info('Your Chicobo is currently in it\'s "Home" state. To edit the file, you need to send it off'
                         'into the world first.')
@@ -278,6 +279,13 @@ class CLITool:
             logger.critical(f'"{name}" is not a valid value to set on a world.')
         setattr(world, name, value)
         world.write_to_file(Files.CHEATSAVE)
+
+    @cli_endpoint(mog='Integer to set to mog status.')
+    def mog(self, mog: int):
+        world = World(Files.CHEATSAVE, for_writing=True)
+        world.mog_status = MogStatus(mog)
+        world.write_to_file(Files.CHEATSAVE)
+
 
 
 if __name__ == '__main__':
