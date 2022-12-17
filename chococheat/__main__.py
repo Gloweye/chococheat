@@ -4,11 +4,10 @@ import sys
 from argparse import ArgumentParser
 from inspect import signature
 from pathlib import Path
-from time import sleep, time
+from time import sleep
 from logging import getLogger, basicConfig, INFO
 
-from chococheat.world_info import (is_chicobo_away, CHEATSAVE, CHOCOSAVE, OFFSET_ITEMS_A, OFFSET_ITEMS_B, LEVEL_OFFSET,
-                                   OFFSET_ITEMS_C, OFFSET_ITEMS_D, RANK_OFFSET, CURRENT_HP_OFFSET, MAX_HP_OFFSET)
+from chococheat.world_info import World, CHEATSAVE, CHOCOSAVE, BACKUPSAVE
 
 
 logger = getLogger(__name__)
@@ -53,7 +52,7 @@ class CLITool:
         try:
             while True:
                 sleep(0.2)
-                if current_age != CHOCOSAVE.stat().st_mtime_ns and is_chicobo_away(CHOCOSAVE):
+                if current_age != CHOCOSAVE.stat().st_mtime_ns and World(CHOCOSAVE).away:
                     logger.info(f'Change detected, replacing chocobo save...')
                     copy_from_cheat_file(CHOCOSAVE, CHEATSAVE)
                     current_age = CHOCOSAVE.stat().st_mtime_ns
@@ -61,45 +60,44 @@ class CLITool:
             logger.info('ChocoCheat has exited.')
 
     @cli_endpoint(
-        main='Which save to print the status of; defaults to the cheatsave.'
+        world_='Which save to print the status of; defaults to the cheatsave.'
     )
-    def status(self, *, main: SaveType = SaveType.cheat):
+    def status(self, *, world_: SaveType = SaveType.cheat):
         """
         Print the status of a chocoworld save.
         """
         subject = {
             SaveType.cheat: CHEATSAVE,
             SaveType.primary: CHOCOSAVE,
-            SaveType.backup: CHOCOSAVE,  # @TODO: Actual backup management.
-        }[main]
+            SaveType.backup: BACKUPSAVE,
+        }[world_]
         if not subject.exists():
-            logger.info(f'Could not find the {main} file.')
+            logger.info(f'Could not find the {world_} file.')
             return
 
-        filedata = subject.read_bytes()
+        world = World(subject)
 
-        if is_chicobo_away(subject):
+        if world.away:
             logger.info('Chicobo is currently exploring. That means we can cheat.')
         else:
             logger.info('Chicobo is currently home. That means we can\'t meaningfully edit the save file.')
 
-        logger.info(f'Chicobo\'s (hidden) rank is {filedata[RANK_OFFSET].to_bytes(1, "big").hex()}.')
-        level = int(filedata[LEVEL_OFFSET].to_bytes(1, "big").hex()) or 100
-        logger.info(f'Chicobo\'s level is {level}.')
-        min_hp = filedata[CURRENT_HP_OFFSET].to_bytes(1, 'big').hex()
-        max_hp = filedata[MAX_HP_OFFSET].to_bytes(1, 'big').hex()
-        logger.info(f'Chicobo\'s HP is {min_hp}/{max_hp}')
+        logger.info(f'Chicobo\'s (hidden) rank is {int(world.rank)}.')
+        logger.info(f'Chicobo\'s level is {int(world.level) or 100}.')
+        logger.info(f'Chicobo\'s HP is {int(world.current_hp)}/{int(world.maximum_hp)}')
+        if world.items_visible:
+            for item_class, number in world.items.items():
+                logger.info(f'Cactuar has found {int(number)} {item_class}-class items.')
 
-        if filedata[OFFSET_ITEMS_A].to_bytes(1, 'big').hex():
-            # Consider it valid item data
-            for key, value in {
-                'A': filedata[OFFSET_ITEMS_A].to_bytes(1, 'big').hex(),
-                'B': filedata[OFFSET_ITEMS_B].to_bytes(1, 'big').hex(),
-                'C': filedata[OFFSET_ITEMS_C].to_bytes(1, 'big').hex(),
-                'D': filedata[OFFSET_ITEMS_D].to_bytes(1, 'big').hex(),
-            }.items():
-                if value:
-                    logger.info(f'Cactuar has found {int(value)} {key}-class items.')
+    @cli_endpoint(
+        auto='Automagically initialize the cheat tool as recommended.'
+    )
+    def init(self, auto: bool = False):
+        """
+        Setup the cheat tool. Backups, Chicobo power boosts, items, etc.
+        :param auto:
+        :return:
+        """
 
     @cli_endpoint(
         item_a='Number of items of category A to give, range 0-99 inclusive.',
@@ -109,26 +107,26 @@ class CLITool:
     )
     def items(self, *, item_a: int = None, item_b: int = None, item_c: int = None, item_d: int = None):
         """Changes the item numbers set in the cheatsave."""
-        data = bytearray(CHEATSAVE.read_bytes())
-        if not data[OFFSET_ITEMS_A].to_bytes(1, 'big').hex():
+        world = World(CHEATSAVE, for_writing=True)
+        if not world.items_visible:
             logger.critical('Cheat Save is not in a state that we know how to modify number of items.')
             logger.info('Please play the chocobo game until you have at least 2 kinds of items.')
             return 1
         table = {
-            'A': (item_a, OFFSET_ITEMS_A),
-            'B': (item_b, OFFSET_ITEMS_B),
-            'C': (item_c, OFFSET_ITEMS_C),
-            'D': (item_d, OFFSET_ITEMS_D),
+            'A': item_a,
+            'B': item_b,
+            'C': item_c,
+            'D': item_d,
         }
-        for symbol, (item, offset) in table.items():
-            if item is not None:
-                if 0 <= item < 100:
-                    data[offset] = int.from_bytes(bytes.fromhex(f'{item:0<2}'), 'big')
-                    logger.info(f'There are now {item} {symbol}-class items.')
+        for item_class, num_desired in table.items():
+            if num_desired is not None:
+                if 0 <= num_desired < 100:
+                    world.items[item_class] = str(num_desired)
+                    logger.info(f'There are now {num_desired} {item_class}-class items.')
                 else:
-                    logger.info(f'Number of items provided for {symbol} out of range 0-99 inclusive.')
+                    logger.info(f'Number of items provided for {item_class} out of range 0-99 inclusive.')
 
-        CHEATSAVE.write_bytes(data)
+        world.write_to_file(CHEATSAVE)
 
 
 if __name__ == '__main__':
