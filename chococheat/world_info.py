@@ -8,14 +8,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import Union, Type
 
-from chococheat.config import config
-
 # Actually only know this about Windows for certain.
-GAME_SAVES_DIR = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam' \
-                 / f'user_{config:global.user_id!d}'
-CHOCOSAVE = GAME_SAVES_DIR / 'chocorpg.ff8'
-BACKUPSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.bak'
-CHEATSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.cheat'
 logger = getLogger()
 
 

@@ -24,4 +24,15 @@ else:  # Assume Linux-y
     CONFIGFILE = Path.home() / '.config' / 'chococheat.ini'
 
 config = Config()
-config.read(CONFIGFILE)
+if CONFIGFILE.exists():
+    config.read(CONFIGFILE)
+else:
+    CONFIGFILE.touch()
+
+
+class Files:
+    GAME_SAVES_DIR = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam' \
+                     / f'user_{config:global.user_id.not_found!d}'
+    CHOCOSAVE = GAME_SAVES_DIR / 'chocorpg.ff8'
+    BACKUPSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.bak'
+    CHEATSAVE = GAME_SAVES_DIR / 'chocorpg.ff8.cheat'

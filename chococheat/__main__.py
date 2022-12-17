@@ -7,8 +7,8 @@ from pathlib import Path
 from time import sleep
 from logging import getLogger, basicConfig, INFO
 
-from chococheat.config import config
-from chococheat.world_info import World, CHEATSAVE, CHOCOSAVE, BACKUPSAVE, MogStatus
+from chococheat.config import config, Files
+from chococheat.world_info import World,  MogStatus
 
 logger = getLogger(__name__)
 
@@ -41,21 +41,21 @@ class CLITool:
     @cli_endpoint
     def run(self):
         """Using the saved settings, keep swapping out the Chocobo World file for the cheating one."""
-        if CHEATSAVE.read_bytes() != CHOCOSAVE.read_bytes():
+        if Files.CHEATSAVE.read_bytes() != Files.CHOCOSAVE.read_bytes():
             logger.info('Files different during init, copying...')
-            copy_from_cheat_file(CHOCOSAVE, CHEATSAVE)
+            copy_from_cheat_file(Files.CHOCOSAVE, Files.CHEATSAVE)
 
-        current_age = CHOCOSAVE.stat().st_mtime_ns
+        current_age = Files.CHOCOSAVE.stat().st_mtime_ns
         logger.info('Running ChocoCheat auto-refresh.')
         logger.info('You can now repeatedly bring your Chicobo home and send him away in the menu.')
         logger.info('Press Ctrl+C to exit.')
         try:
             while True:
                 sleep(0.2)
-                if current_age != CHOCOSAVE.stat().st_mtime_ns and World(CHOCOSAVE).away:
+                if current_age != Files.CHOCOSAVE.stat().st_mtime_ns and World(Files.CHOCOSAVE).away:
                     logger.info(f'Change detected, replacing chocobo save...')
-                    copy_from_cheat_file(CHOCOSAVE, CHEATSAVE)
-                    current_age = CHOCOSAVE.stat().st_mtime_ns
+                    copy_from_cheat_file(Files.CHOCOSAVE, Files.CHEATSAVE)
+                    current_age = Files.CHOCOSAVE.stat().st_mtime_ns
         except KeyboardInterrupt:
             logger.info('ChocoCheat has exited.')
 
@@ -67,9 +67,9 @@ class CLITool:
         Print the status of a chocoworld save.
         """
         subject = {
-            SaveType.cheat: CHEATSAVE,
-            SaveType.primary: CHOCOSAVE,
-            SaveType.backup: BACKUPSAVE,
+            SaveType.cheat: Files.CHEATSAVE,
+            SaveType.primary: Files.CHOCOSAVE,
+            SaveType.backup: Files.BACKUPSAVE,
         }[world_]
         if not subject.exists():
             logger.info(f'Could not find the {world_} file.')
@@ -100,22 +100,52 @@ class CLITool:
         """
         Setup the cheat tool. Backups, Chicobo power boosts, items, etc. You can either
         """
-        if not CHOCOSAVE.exists():
+        if config.get('global', 'user_id', None) is None:
+            dir = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam'
+            candidates = []
+            for path in dir.iterdir():
+                if path.is_dir() and path.name.startswith('user_'):
+                    candidates.append(path)
+
+            if not candidates:
+                logger.critical('Could not find your user id from the steam directory.')
+                return 1
+            elif len(candidates) == 1 or auto:
+                user_id = int(candidates[0].stem[5:])
+                if auto and len(candidates) > 1:
+                    logger.info(f'Found multiple candiate user id\'s. Using {user_id}')
+            else:
+                logger.info('Found multiple candidate user id\'s. Please select yours:')
+                for index, can in enumerate(candidates):
+                    logger.info(f'- [{index}]: {can.stem[5:]}')
+                answer = int(input('Your ID: '))
+                if answer > len(candidates):
+                    user_id = answer
+                else:
+                    user_id = candidates[answer].stem[5:]
+
+            config.set('global', 'user_id', user_id)
+            Files.GAME_SAVES_DIR = dir / f'user_{user_id}'
+            Files.CHOCOSAVE = Files.GAME_SAVES_DIR / 'chocorpg.ff8'
+            Files.CHEATSAVE = Files.GAME_SAVES_DIR / 'chocorpg.ff8.cheat'
+            Files.BACKUPSAVE = Files.GAME_SAVES_DIR / 'chocorpg.ff8.bak'
+
+        if not Files.CHOCOSAVE.exists():
             logger.info('There is currently no Chocobo World save file. This means there\'s also no way to import '
                         'cheated stuff. To get started, go into FF8, catch your first Chocobo (or pay the Chocoboy '
                         'to do it for you), and then go into the "Save" menu to send your Chicobo on it\'s way. '
                         'To edit data, it needs to be on "World", not "Home".')
             return
 
-        world = World(CHEATSAVE if CHEATSAVE.exists() else CHOCOSAVE)
+        world = World(Files.CHEATSAVE if Files.CHEATSAVE.exists() else Files.CHOCOSAVE)
         if not world.away:
             logger.info('Your Chicobo is currently in it\'s "Home" state. To edit the file, you need to send it off'
                         'into the world first.')
             return
 
         if auto:
-            if not BACKUPSAVE.exists():
-                world.write_to_file(BACKUPSAVE)
+            if not Files.BACKUPSAVE.exists():
+                world.write_to_file(Files.BACKUPSAVE)
             if not world.items_visible:
                 world = World.from_dummy()
             if not ff8_only:
@@ -125,10 +155,20 @@ class CLITool:
                 world.mog_status = MogStatus.ALL
             world.item_a = world.item_b = world.item_c = world.item_d = 99
             world.mog_status = world.mog_status | MogStatus.MOG_AVAILABLE
-            world.write_to_file(CHEATSAVE)
+            world.write_to_file(Files.CHEATSAVE)
             return
 
         logger.info('Wizard has not been implemented yet.')
+
+    @cli_endpoint
+    def restore_game_dir(self):
+        """Restore game directory as if this tool had never run."""
+        if Files.BACKUPSAVE.exists():
+            Files.CHOCOSAVE.unlink(True)
+            Files.CHOCOSAVE.write_bytes(Files.BACKUPSAVE.read_bytes())
+            Files.BACKUPSAVE.unlink(True)
+
+        Files.CHEATSAVE.unlink(True)
 
     @cli_endpoint(
         item_a='Number of items of category A to give, range 0-99 inclusive.',
@@ -138,7 +178,7 @@ class CLITool:
     )
     def items(self, *, item_a: int = None, item_b: int = None, item_c: int = None, item_d: int = None):
         """Changes the item numbers set in the cheatsave."""
-        world = World(CHEATSAVE, for_writing=True)
+        world = World(Files.CHEATSAVE, for_writing=True)
         if not world.items_visible:
             logger.critical('Cheat Save is not in a state that we know how to modify number of items.')
             logger.info('Please play the chocobo game until you have at least 2 kinds of items.')
@@ -157,7 +197,7 @@ class CLITool:
                 else:
                     logger.info(f'Number of items provided for {item_class} out of range 0-99 inclusive.')
 
-        world.write_to_file(CHEATSAVE)
+        world.write_to_file(Files.CHEATSAVE)
 
 
 if __name__ == '__main__':
