@@ -253,7 +253,8 @@ class CLITool:
                     world.items[item_class] = str(num_desired)
                     logger.info(f'There are now {num_desired} {item_class}-class items.')
                 else:
-                    logger.info(f'Number of items provided for {item_class} out of range 0-99 inclusive.')
+                    logger.info(f'Number of items provided for {item_class}-class ({num_desired}) is outside of '
+                                f'range 0-99 inclusive.')
 
         world.write_to_file(Files.CHEATSAVE)
 
