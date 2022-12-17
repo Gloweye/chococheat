@@ -110,7 +110,7 @@ class CLITool:
         try:
             while True:
                 sleep(0.2)
-                if current_age != Files.CHOCOSAVE.stat().st_mtime_ns and World(Files.CHOCOSAVE).away:
+                if current_age != Files.CHOCOSAVE.stat().st_mtime_ns and int(World(Files.CHOCOSAVE).away):
                     logger.info(f'Change detected, replacing chocobo save...')
                     Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
                     current_age = Files.CHOCOSAVE.stat().st_mtime_ns
