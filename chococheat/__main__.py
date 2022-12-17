@@ -13,10 +13,6 @@ from chococheat.world_info import World,  MogStatus
 logger = getLogger(__name__)
 
 
-def copy_from_cheat_file(path: Path, cheat_path: Path):
-    path.write_bytes(cheat_path.read_bytes())
-
-
 def cli_endpoint(func=None, /, **kwargs):
     """Decorator for CLI Endpoints"""
     if func:
@@ -38,12 +34,74 @@ class SaveType(str, Enum):
 class CLITool:
     """Manages CLI endpoints. Quick and Dirty kind."""
 
+    def __init__(self):
+        self.parser = ArgumentParser(
+            'ChocoCheat',
+            'python -m chococheat',
+            'Cheat program to make FF8 really easy by messing with the Chocobo World save file.'
+        )
+        subs = self.parser.add_subparsers(title='command', dest='command')
+        for key, value in vars(type(self)).items():
+            if hasattr(value, 'endpoint_info'):
+                param_info = value.endpoint_info
+                command_parser = subs.add_parser(key, help=value.__doc__)
+                for name, param in signature(value, follow_wrapped=True).parameters.items():
+                    if name == 'self':
+                        continue
+
+                    kwargs = {}
+                    prefix = ''
+                    if param.annotation is not bool:
+                        kwargs['required'] = param.default is param.empty
+                        if param.default is not param.empty:
+                            kwargs['default'] = param.default
+                        if param.kind is param.KEYWORD_ONLY:
+                            prefix = '--'
+
+                    if issubclass(param.annotation, str) and issubclass(param.annotation, Enum):
+                        kwargs['choices'] = tuple(mem for mem in param.annotation.__members__)
+                    if param.annotation is bool:
+                        kwargs['action'] = 'store_false' if param.default is True else 'store_true'
+                        prefix = '--'
+                    else:
+                        kwargs['action'] = 'store'
+                        kwargs['type'] = param.annotation
+                    if name in param_info:
+                        kwargs['help'] = param_info[name]
+                    if '_' in name:
+                        kwargs['dest'] = name
+                        name = name.strip('_').replace('_', '-')
+
+                    if not kwargs.get('required', True) and not prefix:
+                        kwargs['nargs'] = '?'
+                        kwargs.pop('required')
+
+                    if not prefix:
+                        args = ()
+                        # kwargs.pop('required')
+                    else:
+                        args = (prefix + name,)
+                    command_parser.add_argument(*args, **kwargs)
+
+    def execute(self) -> int:
+        kwargs = vars(self.parser.parse_args())
+        if command := kwargs.pop('command'):
+            return getattr(self, command)(**kwargs) or 0
+        else:
+            self.parser.print_help()
+            return 0
+
     @cli_endpoint
     def run(self):
         """Using the saved settings, keep swapping out the Chocobo World file for the cheating one."""
-        if Files.CHEATSAVE.read_bytes() != Files.CHOCOSAVE.read_bytes():
-            logger.info('Files different during init, copying...')
-            copy_from_cheat_file(Files.CHOCOSAVE, Files.CHEATSAVE)
+        if not Files.CHEATSAVE.exists():
+            logger.critical('Running the ChocoCheat auto-refresh requires a cheatsave.')
+            logger.info('You can create one using chococheat init.')
+            return 1
+
+        if not Files.CHOCOSAVE.exists() or Files.CHEATSAVE.read_bytes() != Files.CHOCOSAVE.read_bytes():
+            logger.info(f'Change detected, replacing chocobo save...')
+            Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
 
         current_age = Files.CHOCOSAVE.stat().st_mtime_ns
         logger.info('Running ChocoCheat auto-refresh.')
@@ -54,7 +112,7 @@ class CLITool:
                 sleep(0.2)
                 if current_age != Files.CHOCOSAVE.stat().st_mtime_ns and World(Files.CHOCOSAVE).away:
                     logger.info(f'Change detected, replacing chocobo save...')
-                    copy_from_cheat_file(Files.CHOCOSAVE, Files.CHEATSAVE)
+                    Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
                     current_age = Files.CHOCOSAVE.stat().st_mtime_ns
         except KeyboardInterrupt:
             logger.info('ChocoCheat has exited.')
@@ -62,7 +120,7 @@ class CLITool:
     @cli_endpoint(
         world_='Which save to print the status of; defaults to the cheatsave.'
     )
-    def status(self, *, world_: SaveType = SaveType.cheat):
+    def status(self, world_: SaveType = SaveType.cheat):
         """
         Print the status of a chocoworld save.
         """
@@ -76,6 +134,7 @@ class CLITool:
             return
 
         world = World(subject)
+        logger.info(f'Reporting on the status of the {world_} save.')
 
         if world.away:
             logger.info('Chicobo is currently exploring. That means we can cheat.')
@@ -88,7 +147,7 @@ class CLITool:
         logger.info(f'Chicobo\'s HP is {int(world.current_hp)}/{int(world.maximum_hp)}')
         if world.items_visible:
             for item_class, number in world.items.items():
-                logger.info(f'Cactuar has found {int(number)} {item_class}-class items.')
+                logger.info(f'Chicobo has {int(number)} {item_class}-class items.')
         else:
             logger.info('Cannot read the items at this time.')
 
@@ -98,7 +157,7 @@ class CLITool:
     )
     def init(self, auto: bool, ff8_only: bool):
         """
-        Setup the cheat tool. Backups, Chicobo power boosts, items, etc. You can either
+        Setup the cheat tool. Backups, Chicobo power boosts, items, etc.
         """
         if config.get('global', 'user_id', None) is None:
             dir = Path.home() / 'Documents' / 'Square Enix' / 'FINAL FANTASY VIII Steam'
@@ -165,18 +224,17 @@ class CLITool:
         """Restore game directory as if this tool had never run."""
         if Files.BACKUPSAVE.exists():
             Files.CHOCOSAVE.unlink(True)
-            Files.CHOCOSAVE.write_bytes(Files.BACKUPSAVE.read_bytes())
-            Files.BACKUPSAVE.unlink(True)
+            Files.BACKUPSAVE.rename(Files.CHOCOSAVE)
 
         Files.CHEATSAVE.unlink(True)
 
     @cli_endpoint(
-        item_a='Number of items of category A to give, range 0-99 inclusive.',
-        item_b='Number of items of category B to give, range 0-99 inclusive.',
-        item_c='Number of items of category C to give, range 0-99 inclusive.',
-        item_d='Number of items of category D to give, range 0-99 inclusive.',
+        a='Number of items of category A to give, range 0-99 inclusive.',
+        b='Number of items of category B to give, range 0-99 inclusive.',
+        c='Number of items of category C to give, range 0-99 inclusive.',
+        d='Number of items of category D to give, range 0-99 inclusive.',
     )
-    def items(self, *, item_a: int = None, item_b: int = None, item_c: int = None, item_d: int = None):
+    def items(self, *, a: int = None, b: int = None, c: int = None, d: int = None):
         """Changes the item numbers set in the cheatsave."""
         world = World(Files.CHEATSAVE, for_writing=True)
         if not world.items_visible:
@@ -184,10 +242,10 @@ class CLITool:
             logger.info('Please play the chocobo game until you have at least 2 kinds of items.')
             return 1
         table = {
-            'A': item_a,
-            'B': item_b,
-            'C': item_c,
-            'D': item_d,
+            'A': a,
+            'B': b,
+            'C': c,
+            'D': d,
         }
         for item_class, num_desired in table.items():
             if num_desired is not None:
@@ -201,56 +259,5 @@ class CLITool:
 
 
 if __name__ == '__main__':
-    fmt = '{levelname: <8}{name: <20}:{lineno: <4}:{msg}' if '--verbose' in sys.argv else '{msg}'
-    basicConfig(format=fmt, style='{', stream=sys.stdout, level=INFO)
-    parser = ArgumentParser(
-        'ChocoCheat',
-        'python -m chococheat',
-        'Cheat program to make FF8 really easy by messing with the Chocobo World save file.'
-    )
-    subs = parser.add_subparsers(title='command', dest='command')
-    holder = CLITool()
-    for key, value in vars(CLITool).items():
-        if hasattr(value, 'endpoint_info'):
-            param_info = value.endpoint_info
-            command_parser = subs.add_parser(key, help=value.__doc__)
-            for name, param in signature(value, follow_wrapped=True).parameters.items():
-                if name == 'self':
-                    continue
-
-                kwargs = {}
-                prefix = ''
-                if param.annotation is not bool:
-
-                    if param.default is not param.empty:
-                        kwargs['default'] = param.default
-                        kwargs['required'] = False
-
-                    if param.kind is param.KEYWORD_ONLY:
-                        kwargs['required'] = True
-                        prefix = '--'
-
-                if issubclass(param.annotation, str) and issubclass(param.annotation, Enum):
-                    kwargs['choices'] = tuple(mem for mem in param.annotation.__members__)
-                if param.annotation is bool:
-                    kwargs['action'] = 'store_false' if param.default is True else 'store_true'
-                    prefix = '--'
-                else:
-                    kwargs['action'] = 'store'
-                    kwargs['type'] = param.annotation
-                if name in param_info:
-                    kwargs['help'] = param_info[name]
-                if '_' in name:
-                    kwargs['dest'] = name
-                    name = name.replace('_', '-')
-
-                command_parser.add_argument(prefix + name, **kwargs)
-
-    args = parser.parse_args()
-    command = vars(args).pop('command')
-    if command is None:
-        parser.print_help()
-        raise SystemExit(0)
-    result = getattr(holder, command)(**vars(args))
-    if result and isinstance(result, int) and 0 < result <= 127:  # I remember something about higher being invalid.
-        raise SystemExit(result)
+    basicConfig(format='{msg}', style='{', stream=sys.stdout, level=INFO)
+    sys.exit(CLITool().execute())

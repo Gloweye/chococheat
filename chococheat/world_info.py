@@ -59,7 +59,7 @@ class Variable:
     def __set__(self, instance, value: str):
         if not isinstance(instance.buffer, bytearray):
             raise RuntimeError('Cannot assign to instance when it\'s not writable.')
-        instance.buffer[self.offset:self.offset + self.size] = bytes.fromhex(f'{value:0<{self.size}}')[::-1]
+        instance.buffer[self.offset:self.offset + self.size] = bytes.fromhex(f'{value:0<{2*self.size}}')[::-1]
 
 
 class FlagsVariable:
