@@ -76,9 +76,11 @@ class CLITool:
                         kwargs['nargs'] = '?'
                         kwargs.pop('required')
 
-                    if not prefix:
+                    if not prefix and 'dest' in kwargs:
                         args = ()
-                        # kwargs.pop('required')
+                    elif not prefix:
+                        kwargs.pop('required')
+                        args = (name,)
                     else:
                         args = (prefix + name,)
                     command_parser.add_argument(*args, **kwargs)
@@ -104,6 +106,7 @@ class CLITool:
             Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
 
         current_age = Files.CHOCOSAVE.stat().st_mtime_ns
+        cheat_age = Files.CHEATSAVE.stat().st_mtime_ns
         logger.info('Running ChocoCheat auto-refresh.')
         logger.info('You can now repeatedly bring your Chicobo home and send him away in the menu.')
         logger.info('Press Ctrl+C to exit.')
@@ -114,6 +117,11 @@ class CLITool:
                     logger.info(f'Change detected, replacing chocobo save...')
                     Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
                     current_age = Files.CHOCOSAVE.stat().st_mtime_ns
+                if cheat_age != Files.CHEATSAVE.stat().st_mtime_ns:
+                    logger.info(f'New Cheat Save, updating...')
+                    Files.CHOCOSAVE.write_bytes(Files.CHEATSAVE.read_bytes())
+                    cheat_age = Files.CHEATSAVE.stat().st_mtime_ns
+
         except KeyboardInterrupt:
             logger.info('ChocoCheat has exited.')
 
@@ -141,6 +149,7 @@ class CLITool:
         else:
             logger.info('Chicobo is currently home. That means we can\'t meaningfully edit the save file.')
 
+        logger.info(f'Chicobo\'s world ID is {int(world.world_id)}.')
         logger.info(f'Chicobo\'s (hidden) rank is {int(world.rank)}.')
         logger.info(f'Chicobo\'s level is {int(world.level) or 100}.')
         logger.info(f'Chicobo\'s weapon is {world.weapon}.')
@@ -256,6 +265,18 @@ class CLITool:
                     logger.info(f'Number of items provided for {item_class}-class ({num_desired}) is outside of '
                                 f'range 0-99 inclusive.')
 
+        world.write_to_file(Files.CHEATSAVE)
+
+    @cli_endpoint(
+        name='Name of the variable to set',
+        value='Value to set it to.',
+    )
+    def set(self, name: str, value: str):
+        """If you need a docstring, don't use it."""
+        world = World(Files.CHEATSAVE, for_writing=True)
+        if not hasattr(world, name):
+            logger.critical(f'"{name}" is not a valid value to set on a world.')
+        setattr(world, name, value)
         world.write_to_file(Files.CHEATSAVE)
 
 
