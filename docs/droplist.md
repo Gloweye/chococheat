@@ -128,87 +128,92 @@ refining products and/or other non-trivial purposes. This column should be consi
 | Dragon Fin        | -        | 1/64     | x20 Double                                             |                                   |
 | Poison Powder     | -        | 1/64     ||
 
-| B-class Items     | Table #1 | Table #2 | Use                                                          |
-|-------------------|----------|----------|--------------------------------------------------------------|
-| Rosetta Stone     | 1/64     | 4/64     | GF: Abilityx4                                                |
-| Friendship        | 3/64     | 2/64     ||
-| Aegis Amulet      | 2/64     | -        | GF: Eva-J                                                    |
-| HP Up             | -        | 3/64     | Fastest Stat Maxing                                          |
-| Vit Up            | -        | 3/64     | Fastest Stat Maxing                                          |
-| Spr Up            | -        | 3/64     | Fastest Stat Maxing                                          |
-| Luck Up           | -        | 3/64     | Fastest Stat Maxing                                          |
-| Str Up            | -        | 2/64     | Fastest Stat Maxing                                          |
-| Mag Up            | -        | 2/64     | Fastest Stat Maxing                                          |
-| Spd Up            | -        | 2/64     | Fastest Stat Maxing                                          |
-| Chocobo's Tag     | -        | 2/64     ||
-| Ultima Stone      | 1/64     | 2/64     ||
-| Elem Atk          | 1/64     | 1/64     ||
-| Elem Guard        | 1/64     | 1/64     | GF: Elem-Defx4                                               |
-| Status Atk        | 1/64     | 1/64     ||
-| Status Guard      | 1/64     | 1/64     | GF: Status-Defx4                                             |
-| Cottage           | 1/64     | -        ||
-| G-Hi-Potion       | 1/64     | -        ||
-| G-Returner        | 1/64     | -        ||
-| Amnesia Greens    | 1/64     | -        ||
-| Mag-J Scroll      | 1/64     | -        ||
-| Spd-J Scroll      | 1/64     | -        | Last reliable source until GF Eden!                          |
-| Draw Scroll       | 1/64     | -        ||
-| Gambler Spirit    | 1/64     | -        ||
-| Phoenix Spirit    | 1/64     | -        | 100x Full-Life                                               |
-| Magic Stone       | 1/64     | -        ||
-| Ochu Tentacle     | 1/64     | -        ||
-| Cockatrice Pinion | 1/64     | -        ||
-| Mesmerize Blade   | 1/64     | -        ||
-| Missile           | 1/64     | -        ||
-| Whisper           | 1/64     | -        ||
-| Barrier           | 1/64     | -        ||
-| North Wind        | 1/64     | -        | x20 Blizzaga                                                 |
-| Red Fang          | 1/64     | -        | x20 Firaga                                                   |
-| Inferno Fang      | 1/64     | -        | x20 Flare                                                    |
-| Running Fire      | 1/64     | -        ||
-| Hungry Cookpot    | 1/64     | -        | Kinda redudant if you have this many Up's.                   |
-| Lightweight       | 1/64     | -        | 100-> 1 Accelerator (Needs GF Eden)                          |
-| Screw             | 1/64     | -        ||
-| Betrayal Sword    | 1/64     | -        | x20 Confuse                                                  |
-| Dragon Fang       | 1/64     | -        ||
-| Curse Spike       | 1/64     | -        | x10 Pain                                                     |
-| Magic Scroll      | 1/64     | -        ||
-| Hero              | 1/64     | -        | Best infinite source until Disc 4 CC club!                   |
-| Gysahl Greens     | 1/64     | -        ||
-| Tent              | 1/64     | -        ||
-| Str-J Scroll      | 1/64     | -        ||
-| Hero-Trial        | -        | 1/64     ||
-| Phoenix Pinion    | -        | 1/64     | Special GF Summon Phoenix.                                   |
-| Pet House         | -        | 1/64     ||
-| G-Potion          | -        | 1/64     ||
-| G-Mega-Potion     | -        | 1/64     ||
-| Rename Card       | -        | 1/64     ||
-| HP-J Scroll       | -        | 1/64     ||
-| Vit-J Scroll      | -        | 1/64     ||
-| Spr-J Scroll      | -        | 1/64     ||
-| Luck-J Scroll     | -        | 1/64     | Best Source for a long while.                                |
-| GF Scroll         | -        | 1/64     ||
-| Item Scroll       | -        | 1/64     ||
-| Healing Ring      | -        | 1/64     | GF: Recover                                                  |
-| Med Kit           | -        | 1/64     ||
-| Bomb Spirit       | -        | 1/64     | x100 Firaga                                                  |
-| Steel Pipe        | -        | 1/64     | x6 required for Doomtrain                                    |
-| Energy Crystal    | -        | 1/64     | Multiple Ultimate Weapons; Refines into Pulse Ammo           |
-| Healing Mail      | -        | 1/64     ||
-| Gold Armor        | -        | 1/64     ||
-| Gaea's Ring       | -        | 1/64     | Char: +80% HP                                                |
-| Hyper Wrist       | -        | 1/64     | Char: +60% Str                                               |
-| Adamantine        | -        | 1/64     | Char: +60% Vit; Multiple Ultimate Weapons                    |
-| Magic Armlet      | -        | 1/64     | Char: +60% Spr                                               |
-| Royal Crown       | -        | 1/64     | Char: +60% Mag                                               |
-| Moon Curtain      | -        | 1/64     | Char: Auto-Shell                                             |
-| Glow Curtain      | -        | 1/64     | Char: Auto-Reflect                                           |
-| Monk's Code       | -        | 1/64     ||
-| Knight's Code     | -        | 1/64     ||
-| Three Stars       | -        | 1/64     | x100 Triple, Char: Expend3-1                                 |
-| Power Generator   | -        | 1/64     ||
-| Dark Matter       | -        | 1/64     | x100 Ultima (with Doomtrain Forbid-Mag RF), Quistis B. Magic |
-| Solomon Ring      | -        | 1/64     | Summons Doomtrain with x6 Steel Pipe, Remedy+, Marlboro T.   |
+| B-class Items     | Table #1 | Table #2 | Table #3 | Use                                                       |
+|-------------------|----------|----------|----------|-----------------------------------------------------------|
+| Hero              | 1/64     | -        | 1/64     ||
+| Ultima Stone      | 1/64     | 2/64     | 1/64     ||
+| Gysahl Greens     | 1/64     | -        | 1/64     ||
+| Friendship        | 3/64     | 2/64     | 3/64     ||
+| Tent              | 1/64     | -        | 1/64     ||
+| Cottage           | 1/64     | -        | 1/64     ||
+| G-Hi-Potion       | 1/64     | -        | 1/64     ||
+| G-Returner        | 1/64     | -        | 1/64     ||
+| Amnesia Greens    | 1/64     | -        | 1/64     ||
+| Str-J Scroll      | 1/64     | -        | 1/64     ||
+| Mag-J Scroll      | 1/64     | -        | 1/64     ||
+| Spd-J Scroll      | 1/64     | -        | 1/64     | Last reliable source until GF Eden!                      |
+| Aegis Amulet      | 2/64     | -        | 2/64     | GF: Eva-J                                                |
+| Elem Atk          | 1/64     | 1/64     | 1/64     ||
+| Elem Guard        | 1/64     | 1/64     | 1/64     | GF: Elem-Defx4                                           |
+| Status Atk        | 1/64     | 1/64     | 1/64     ||
+| Status Guard      | 1/64     | 1/64     | 1/64     | GF: Status-Defx4                                         |
+| Rosetta Stone     | 1/64     | 4/64     | 1/64     || GF: Abilityx4                                           |
+| Magic Scroll      | 1/64     | -        | 1/64     ||
+| Draw Scroll       | 1/64     | -        | 1/64     ||
+| Gambler Spirit    | 1/64     | -        | 1/64     ||
+| Phoenix Spirit    | 1/64     | -        | 1/64     | 100x Full-Life                                           |
+| Hungry Cookpot    | 1/64     | -        | 1/64     | Kinda redudant if you have this many Up's.               |
+| Mog's Amulet      | 1/64     | -        | -        | Get an additional one if Mog is in your party.           |
+| Star Fragment     | 1/64     | -        | -        ||
+| Samantha Soul     | 1/64     | -        | -        ||
+| Silver Mail       | 1/64     | -        | -        ||
+| Diamond Armor     | 1/64     | -        | -        ||
+| Giant's Ring      | 1/64     | -        | -        ||
+| Power Wrist       | 1/64     | -        | -        ||
+| Orihalcon         | 1/64     | -        | -        ||
+| Force Armlet      | 1/64     | -        | -        ||
+| Hypno Crown       | 1/64     | -        | -        ||
+| Jet Engine        | 1/64     | -        | -        ||
+| Rcket Engine      | 1/64     | -        | -        ||
+| Steel Curtain     | 1/64     | -        | -        ||
+| Accelerator       | 1/64     | -        | -        ||
+| Hundred Needles   | 1/64     | -        | -        ||
+| Ribbon            | 1/64     | -        | -        ||
+| Girl Next Door    | 1/64     | -        | -        ||
+| Pet Nametag       | 1/64     | -        | -        ||
+| Magical Lamp      | 1/64     | -        | -        ||
+| HP Up             | 3/64     | 3/64     | -        | Fastest Stat Maxing                                      |
+| Str Up            | 3/64     | 2/64     | -        | Fastest Stat Maxing                                      |
+| Vit Up            | 2/64     | 3/64     | -        | Fastest Stat Maxing                                      |
+| Mag Up            | 3/64     | 2/64     | -        | Fastest Stat Maxing                                      |
+| Spr Up            | 2/64     | 3/64     | -        | Fastest Stat Maxing                                      |
+| Spd Up            | 3/64     | 2/64     | -        | Fastest Stat Maxing                                      |
+| Luck Up           | 2/64     | 3/64     | -        | Fastest Stat Maxing                                      |
+| LuvLuvG           | 1/64     | -        | -        ||
+| Chocobo's Tag     | -        | 2/64     | -        ||
+| Hero-Trial        | -        | 1/64     | -        ||
+| Phoenix Pinion    | -        | 1/64     | -        | Special GF Summon Phoenix.                               |
+| Pet House         | -        | 1/64     | -        ||
+| G-Potion          | -        | 1/64     | -        ||
+| G-Mega-Potion     | -        | 1/64     | -        ||
+| Rename Card       | -        | 1/64     | -        ||
+| HP-J Scroll       | -        | 1/64     | -        ||
+| Vit-J Scroll      | -        | 1/64     | -        ||
+| Spr-J Scroll      | -        | 1/64     | -        ||
+| Luck-J Scroll     | -        | 1/64     | -        | Best Source for a long while.                            |
+| GF Scroll         | -        | 1/64     | -        ||
+| Item Scroll       | -        | 1/64     | -        ||
+| Healing Ring      | -        | 1/64     | -        | GF: Recover                                              |
+| Med Kit           | -        | 1/64     | -        ||
+| Bomb Spirit       | -        | 1/64     | -        | x100 Firaga                                              |
+| Steel Pipe        | -        | 1/64     | -        | x6 required for Doomtrain                                |
+| Energy Crystal    | -        | 1/64     | -        | Multiple Ultimate Weapons; Refines into Pulse Ammo       |
+| Healing Mail      | -        | 1/64     | -        ||
+| Gold Armor        | -        | 1/64     | -        ||
+| Gaea's Ring       | -        | 1/64     | -        | Char: +80% HP                                            |
+| Hyper Wrist       | -        | 1/64     | -        | Char: +60% Str                                           |
+| Adamantine        | -        | 1/64     | -        | Char: +60% Vit; Multiple Ultimate Weapons                |
+| Magic Armlet      | -        | 1/64     | -        | Char: +60% Spr                                           |
+| Royal Crown       | -        | 1/64     | -        | Char: +60% Mag                                           |
+| Moon Curtain      | -        | 1/64     | -        | Char: Auto-Shell                                         |
+| Glow Curtain      | -        | 1/64     | -        | Char: Auto-Reflect                                       |
+| Monk's Code       | -        | 1/64     | -        ||
+| Knight's Code     | -        | 1/64     | -        ||
+| Three Stars       | -        | 1/64     | -        | x100 Triple, Char: Expend3-1                             |
+| Power Generator   | -        | 1/64     | -        ||
+| Dark Matter       | -        | 1/64     | -        | x100 Ultima (with Doomtrain Forbid-Mag RF), Quistis B. Magic |
+| Solomon Ring      | -        | 1/64     | -        | Summons Doomtrain with x6 Steel Pipe, Remedy+, Marlboro T.|
+| NO DROP           | -        | -        | 22/64    | I honestly don't know either. |
 
 | A-class Items   | Table #1 | Table #2 | Use                                                          |
 |-----------------|----------|----------|--------------------------------------------------------------|
