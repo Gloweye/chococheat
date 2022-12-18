@@ -2,7 +2,7 @@
 Table #2 for B-class items bugs out if Mog was Available, but not found, returning fewer items, and of a subset of the 
 C-class, with on D-class item. This can be reproduced with `python -m chococheat mog 11`.
 
-When bugged, Table #2 cuts off at Mog's Amulet, and gives the following instead:
+When bugged, B-class Table #2 cuts off at Mog's Amulet, and gives the following instead:
 
 | Bugged B-Class    | Amount |
 |-------------------|--------|

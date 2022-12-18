@@ -137,6 +137,32 @@ class World:
         if for_writing and self.away:
             self.buffer = bytearray(self.buffer)
 
+    def make_mog_value_legal(self):
+        """When having B-class items and an invalid mog value, drop tables can bug out."""
+        status = self.mog_status
+        if int(self.level) > 10 or self.level == '00':
+            status |= MogStatus.FOUND
+        elif int(self.level) < 10:
+            status -= MogStatus.FOUND
+
+        if self.level != '00':
+            status -= MogStatus.DEMON_KING_DEAD
+        self.mog_status = status
+
+    def recalculate_hp(self):
+        """Same calculation as happens on level-up while playing ChocoWorld."""
+        self.maximum_hp = {
+            '00': 16,
+            '01': 12,
+            '02': 10,
+            '03': 9,
+            '04': 8,
+            '05': 7,
+            '06': 6,
+        }[self.rank] + int(self.level) // 4
+        if int(self.maximum_hp) < int(self.current_hp):
+            self.current_hp = self.maximum_hp
+
     @classmethod
     def from_dummy(cls):
         return cls(DEMO_FILE)
