@@ -3,17 +3,11 @@ Please keep in mind that all information in this file is from the
 [Steam version](https://store.steampowered.com/app/39150/FINAL_FANTASY_VIII/). This is not the remastered one. I have
 no confirmation there's a difference, but I'm not promising anything either. Neither drop tables nor my scripts working.
 
-The Chocobo World has a lot of good drops. However, a little-known fact is that it has two different drop tables - 
-Luckily for you, I have both tables. 
-
-I'm still researching what exactly makes the game choose either drop table. The 
-[only guide](https://gamefaqs.gamespot.com/ps/197343-final-fantasy-viii/faqs/4929) on the internet
-referencing this multiple tables claims it has to do with ID and level - however, on the same FF8 save on different 
-moments, importing the same ChocoWorld save, I get the different tables. Of course, that could be a PC/Pocketstation
-difference.
-
 The chocobo world save does not actually randomize the items itself. It merely keeps track of how many of each category
-you have, and when you import them into the game, it randomizes your loot according to tables.
+you have, and when you import them into the game, it randomizes your loot according to a droptable. It has two different 
+drop tables - and you'll find both of them here. Which drop table you get is dependent on how many times the current 
+game has been saved *and* loaded - if you dislike your droptable, save your game, then reload it. Since you can't 
+normally reload, you need to hard-reset (reboot your game) or soft-reset (Ctrl+R on PC).
 
 For your convenience, for certain interesting items, I have noted relevant purposes in the final colum. This includes 
 refining products and/or other non-trivial purposes. This column should be considered very subjective.
