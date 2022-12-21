@@ -142,7 +142,7 @@ class World:
         status = self.mog_status
         if int(self.level) > 10 or self.level == '00':
             status |= MogStatus.FOUND
-        elif int(self.level) < 10:
+        elif int(self.level) < 10 and not self.level == '00':
             status -= MogStatus.FOUND
 
         if self.level != '00':
